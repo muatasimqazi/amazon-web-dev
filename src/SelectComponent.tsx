@@ -1,23 +1,71 @@
 import React, { useState } from 'react'
 
+const styles = {
+  container: {
+    margin: '20px 100px',
+  },
+  label: {
+    display: 'block',
+    marginBottom: 20,
+  },
+  select: {
+    height: 40,
+    width: 300,
+    border: '1px solid #ced4da',
+    background: '#fff',
+    padding: '8px 16px',
+    verticalAlign: 'middle',
+    marginBottom: 20,
+    fontSize: 15,
+  },
+  button: {
+    color: '#fff',
+    fontWeight: 400,
+    border: 0,
+    borderRadius: 4,
+    fontSize: 18,
+    cursor: 'pointer',
+  },
+  btnAdd: {
+    display: 'block',
+    background: '#0f7397',
+    padding: '8px 16px',
+  },
+  itemsContainer: {
+    width: 300,
+    padding: 0,
+    border: '1px solid #ced4da',
+    borderRadius: 5,
+  },
+  item: {
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    padding: '5px 12px',
+    borderBottom: '1px solid #ced4da',
+  },
+  btnDelete: {
+    background: '#bd0505',
+    padding: '7px 14px',
+  },
+  btnDisabled: {
+    cursor: 'default',
+    opacity: 0.5,
+  },
+}
+
 interface Item {
   id: number
   option: string
 }
 
-const SelectComponent: React.FC = () => {
-
-  const options = [
-    'Item One',
-    'Item Two',
-    'Item Three',
-    'Item Four',
-    'Item Five',
-  ]
-
+interface SelectProps {
+  options: string[]
+}
+const SelectComponent: React.FC<SelectProps> = props => {
   const [option, setOption] = useState<string>('')
   const [items, setItem] = useState<Item[]>([])
-  const [isSelected, setIsSelected] = useState<boolean>(true)
+  const [disabled, setDisabled] = useState<boolean>(true)
 
   const addItem = (item: string) => {
     setItem([
@@ -32,21 +80,28 @@ const SelectComponent: React.FC = () => {
   const handleChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const option = e.target.value
     if (option) {
-      setIsSelected(false)
+      setDisabled(false)
       setOption(option)
     } else {
-      setIsSelected(true)
+      setDisabled(true)
     }
   }
 
-  const handleDelete = (option: string) => {
-    setItem(items.filter(item => item.option != option))
+  const handleDelete = (id: number) => {
+    setItem(items.filter(item => item.id !== id))
   }
 
+  const { options } = props
   return (
-    <>
-      <label htmlFor="options">List of Options</label>
-      <select name="options" onChange={e => handleChange(e)}>
+    <div style={styles.container}>
+      <label style={styles.label} htmlFor="options">
+        List of Options
+      </label>
+      <select
+        style={styles.select}
+        name="options"
+        onChange={e => handleChange(e)}
+      >
         <option></option>
         {options.map((option, index) => (
           <option key={index} value={option}>
@@ -54,18 +109,31 @@ const SelectComponent: React.FC = () => {
           </option>
         ))}
       </select>
-      <button onClick={() => addItem(option)} disabled={isSelected}>
+      <button
+        style={
+          disabled
+            ? { ...styles.button, ...styles.btnAdd, ...styles.btnDisabled }
+            : { ...styles.button, ...styles.btnAdd }
+        }
+        onClick={() => addItem(option)}
+        disabled={disabled}
+      >
         Add to list
       </button>
-      <ul>
+      <ul style={styles.itemsContainer} hidden={items.length === 0}>
         {items.map((item: Item) => (
-          <li key={item.id}>
+          <li key={item.id} style={styles.item}>
             {item.option}
-            <button onClick={() => handleDelete(item.option)}>Delete</button>
+            <button
+              style={{ ...styles.button, ...styles.btnDelete }}
+              onClick={() => handleDelete(item.id)}
+            >
+              Delete
+            </button>
           </li>
         ))}
       </ul>
-    </>
+    </div>
   )
 }
 
